@@ -6,7 +6,8 @@ export const fetchAllSubreddits = async () => {
 };
 
 export const createNewSubreddit = async (name, description, author) => {
-  // YOUR CODE HERE
+  const subreddit = await Subredit.create({ name, description, author });
+  return await subreddit.save();
 };
 
 export const fetchSubredditWithThreads = async (id) => {

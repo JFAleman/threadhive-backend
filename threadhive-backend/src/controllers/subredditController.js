@@ -30,7 +30,16 @@ export const getAllSubreddits = async (req, res) => {
 };
 
 export const createSubreddit = async (req, res) => {
-  // YOUR CODE HERE
+  try {
+    req.body.name,
+    req.body.description,
+    req.body.author
+  );
+  res.status(201).json({
+    success: true,
+    message: "Subreddit created successfully",
+    data: subreddit,
+  });
 };
 
 export const getSubredditWithThreads = async (req, res) => {
