@@ -3,6 +3,7 @@ import {
   createNewSubreddit,
   fetchSubredditWithThreads,
 } from "../services/subredditService.js";
+import Subreddit from "../models/Subreddit.js";
 
 // GET /api/subreddits
 export const getAllSubreddits = async (req, res) => {
@@ -31,15 +32,32 @@ export const getAllSubreddits = async (req, res) => {
 
 export const createSubreddit = async (req, res) => {
   try {
+  const existingSubreddit = await Subreddit.findOne({
+     name: req.body.name
+  })
+  if (existingSubreddit) {
+    return res.status(409).json({
+      success: false,
+      message: "Subreddit already exists",
+    })
+  }
+  const subreddit = await createNewSubreddit(
     req.body.name,
     req.body.description,
     req.body.author
-  );
-  res.status(201).json({
-    success: true,
-    message: "Subreddit created successfully",
-    data: subreddit,
-  });
+  )
+  return res.status(201).json({
+      success: true,
+      message: "Subreddit created successfully",
+      data: subreddit,
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: "Server error while creating subreddit"
+    })
+  }
 };
 
 export const getSubredditWithThreads = async (req, res) => {

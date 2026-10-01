@@ -7,7 +7,9 @@ import {
 
 const router = express.Router();
 
+// http://localhost:3000/api/subreddits
 router.get('/', getAllSubreddits);
+router.post('/', createSubreddit);
 
 /**
  * TODO: Register the following two routes using the imported controller functions:
