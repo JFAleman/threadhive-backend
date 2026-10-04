@@ -10,17 +10,6 @@ const router = express.Router();
 // http://localhost:3000/api/subreddits
 router.get('/', getAllSubreddits);
 router.post('/', createSubreddit);
-
-/**
- * TODO: Register the following two routes using the imported controller functions:
- *
- *  Part 1: POST /       → createSubreddit          (create a new subreddit)
- *  Part 2: GET  /:id    → getSubredditWithThreads  (get one subreddit + its threads)
- *
- * Note: Paths here are relative. The "/api/subreddits" prefix
- * is already applied in src/app.js via: app.use('/api/subreddits', subredditRoutes)
- */
-
-// YOUR CODE HERE
+router.get('/:id', getSubredditWithThreads);
 
 export default router;

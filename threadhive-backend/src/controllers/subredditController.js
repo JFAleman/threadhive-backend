@@ -61,5 +61,33 @@ export const createSubreddit = async (req, res) => {
 };
 
 export const getSubredditWithThreads = async (req, res) => {
-  // YOUR CODE HERE
+  try {
+    const subredditWithThreads = await fetchSubredditWithThreads(req.params.id);
+
+    if (!subredditWithThreads) {
+      return res.status(404).json({
+        success: false,
+        message: "Subreddit not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Subreddit and threads fetched successfully",
+      data: subredditWithThreads,
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid subreddit ID",
+      });
+    }
+
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching subreddit",
+    });
+  }
 };

@@ -15,5 +15,15 @@ export const createNewSubreddit = async (name, description, author) => {
 };
 
 export const fetchSubredditWithThreads = async (id) => {
-  // YOUR CODE HERE
+  const subreddit = await Subreddit.findById(id).populate('author', 'name email');
+
+  if (!subreddit) {
+    return null;
+  }
+
+  const threads = await Thread.find({ subreddit: id })
+    .populate('author', 'name email')
+    .populate('subreddit', 'name description');
+
+  return { subreddit, threads };
 };
