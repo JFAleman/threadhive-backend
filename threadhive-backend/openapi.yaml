@@ -1,0 +1,543 @@
+openapi: 3.2.0
+info:
+  title: ThreadHive API
+  version: 1.0.0
+  description: API for creating and browsing ThreadHive communities and discussion threads.
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+tags:
+  - name: Subreddits
+    description: Community endpoints
+  - name: Threads
+    description: Discussion thread endpoints
+paths:
+  /api/subreddits:
+    get:
+      tags: [Subreddits]
+      summary: List subreddits
+      operationId: getSubreddits
+      responses:
+        '200':
+          description: Subreddits fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubredditListResponse'
+              example:
+                success: true
+                message: Subreddits fetched successfully
+                data:
+                  - _id: 665f1a2b3c4d5e6f7890abcd
+                    name: javascript
+                    description: JavaScript development and discussion
+                    author: 665f1a2b3c4d5e6f7890abce
+                    createdAt: '2024-06-04T12:00:00.000Z'
+                    updatedAt: '2024-06-04T12:00:00.000Z'
+        '404':
+          $ref: '#/components/responses/NoSubreddits'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Subreddits]
+      summary: Create a subreddit
+      operationId: createSubreddit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubredditRequest'
+            example:
+              name: javascript
+              description: JavaScript development and discussion
+              author: 665f1a2b3c4d5e6f7890abce
+      responses:
+        '201':
+          description: Subreddit created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubredditResponse'
+              example:
+                success: true
+                message: Subreddit created successfully
+                data:
+                  _id: 665f1a2b3c4d5e6f7890abcd
+                  name: javascript
+                  description: JavaScript development and discussion
+                  author: 665f1a2b3c4d5e6f7890abce
+                  createdAt: '2024-06-04T12:00:00.000Z'
+                  updatedAt: '2024-06-04T12:00:00.000Z'
+        '409':
+          description: A subreddit with this name already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Subreddit already exists
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/subreddits/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Subreddits]
+      summary: Get a subreddit and its threads
+      operationId: getSubredditWithThreads
+      responses:
+        '200':
+          description: Subreddit and threads fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubredditWithThreadsResponse'
+              example:
+                success: true
+                message: Subreddit and threads fetched successfully
+                data:
+                  subreddit:
+                    _id: 665f1a2b3c4d5e6f7890abcd
+                    name: javascript
+                    description: JavaScript development and discussion
+                    author:
+                      _id: 665f1a2b3c4d5e6f7890abce
+                      name: Ada Lovelace
+                      email: ada@example.com
+                    createdAt: '2024-06-04T12:00:00.000Z'
+                    updatedAt: '2024-06-04T12:00:00.000Z'
+                  threads: []
+        '400':
+          description: The supplied ID is not a valid MongoDB ObjectId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Invalid subreddit ID
+        '404':
+          description: Subreddit was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Subreddit not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/threads:
+    get:
+      tags: [Threads]
+      summary: List threads
+      operationId: getThreads
+      responses:
+        '200':
+          description: Threads fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadListResponse'
+              example:
+                success: true
+                message: Threads fetched successfully
+                data:
+                  - _id: 665f1a2b3c4d5e6f7890abcf
+                    title: How do you test async code?
+                    content: What patterns work well for reliable async tests?
+                    author:
+                      _id: 665f1a2b3c4d5e6f7890abce
+                      name: Ada Lovelace
+                      email: ada@example.com
+                    subreddit:
+                      _id: 665f1a2b3c4d5e6f7890abcd
+                      name: javascript
+                      description: JavaScript development and discussion
+                    upvotes: 3
+                    downvotes: 0
+                    voteCount: 3
+                    createdAt: '2024-06-04T12:00:00.000Z'
+                    updatedAt: '2024-06-04T12:00:00.000Z'
+        '404':
+          $ref: '#/components/responses/NoThreads'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Threads]
+      summary: Create a thread
+      operationId: createThread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateThreadRequest'
+            example:
+              title: How do you test async code?
+              content: What patterns work well for reliable async tests?
+              author: 665f1a2b3c4d5e6f7890abce
+              subreddit: 665f1a2b3c4d5e6f7890abcd
+      responses:
+        '201':
+          description: Thread created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadResponse'
+              example:
+                success: true
+                message: Thread created successfully
+                data:
+                  _id: 665f1a2b3c4d5e6f7890abcf
+                  title: How do you test async code?
+                  content: What patterns work well for reliable async tests?
+                  author: 665f1a2b3c4d5e6f7890abce
+                  subreddit: 665f1a2b3c4d5e6f7890abcd
+                  upvotes: 0
+                  downvotes: 0
+                  voteCount: 0
+                  createdAt: '2024-06-04T12:00:00.000Z'
+                  updatedAt: '2024-06-04T12:00:00.000Z'
+        '400':
+          $ref: '#/components/responses/InvalidThreadData'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/threads/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Threads]
+      summary: Get a thread
+      operationId: getThreadById
+      responses:
+        '200':
+          description: Thread fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadResponse'
+        '400':
+          description: The supplied ID is not a valid MongoDB ObjectId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Invalid thread ID
+        '404':
+          description: Thread was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Thread not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Threads]
+      summary: Update a thread
+      operationId: updateThread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateThreadRequest'
+            example:
+              title: How do you test asynchronous code?
+      responses:
+        '200':
+          description: Thread updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadResponse'
+        '400':
+          $ref: '#/components/responses/InvalidThreadData'
+        '404':
+          description: Thread was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Thread not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Threads]
+      summary: Delete a thread
+      operationId: deleteThread
+      responses:
+        '200':
+          description: Thread deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadResponse'
+        '400':
+          description: The supplied ID is not a valid MongoDB ObjectId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Invalid thread ID
+        '404':
+          description: Thread was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Thread not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: MongoDB ObjectId.
+      schema:
+        type: string
+        pattern: '^[a-fA-F0-9]{24}$'
+        example: 665f1a2b3c4d5e6f7890abcd
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        message:
+          type: string
+      example:
+        success: false
+        message: Server error
+    UserReference:
+      type: object
+      required: [_id, name, email]
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    ObjectIdReference:
+      oneOf:
+        - type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        - $ref: '#/components/schemas/UserReference'
+    SubredditReference:
+      oneOf:
+        - type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        - type: object
+          required: [_id, name]
+          properties:
+            _id:
+              type: string
+              pattern: '^[a-fA-F0-9]{24}$'
+            name:
+              type: string
+            description:
+              type: string
+    Subreddit:
+      type: object
+      required: [_id, name, author, createdAt, updatedAt]
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        name:
+          type: string
+        description:
+          type: string
+        author:
+          $ref: '#/components/schemas/ObjectIdReference'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Thread:
+      type: object
+      required: [_id, title, content, author, subreddit, upvotes, downvotes, voteCount, createdAt, updatedAt]
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          $ref: '#/components/schemas/ObjectIdReference'
+        subreddit:
+          $ref: '#/components/schemas/SubredditReference'
+        upvotes:
+          type: number
+          default: 0
+        downvotes:
+          type: number
+          default: 0
+        voteCount:
+          type: number
+          default: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateSubredditRequest:
+      type: object
+      required: [name, author]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+    CreateThreadRequest:
+      type: object
+      required: [title, content, author, subreddit]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        subreddit:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+    UpdateThreadRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+        subreddit:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+    SuccessResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+        data: {}
+    SubredditResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Subreddit'
+    SubredditListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Subreddit'
+    ThreadResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Thread'
+    ThreadListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Thread'
+    SubredditWithThreads:
+      type: object
+      required: [subreddit, threads]
+      properties:
+        subreddit:
+          $ref: '#/components/schemas/Subreddit'
+        threads:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
+    SubredditWithThreadsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/SubredditWithThreads'
+  responses:
+    ServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Server error
+    NoSubreddits:
+      description: No subreddits were found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: No subreddits found
+    NoThreads:
+      description: No threads were found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: No threads found
+    InvalidThreadData:
+      description: The request body or ID is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Invalid thread data

@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import { fileURLToPath } from "node:url";
 import threadRoutes from "./routes/threads.js";
 import subredditRoutes from "./routes/subreddits.js";
 
@@ -9,6 +12,9 @@ import "./models/Subreddit.js";
 import "./models/User.js";
 
 const app = express();
+const openapiDocument = YAML.load(
+  fileURLToPath(new URL("../openapi.yaml", import.meta.url)),
+);
 
 // Middlewares
 app.use(cors());
@@ -19,6 +25,7 @@ app.use(
     extended: true,
   }),
 );
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 // Routes
 app.use("/api/threads", threadRoutes);
